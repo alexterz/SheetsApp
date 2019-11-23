@@ -15,10 +15,10 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication(exclude={DataSourceAutoConfiguration.class})
 
 //@EnableAutoConfiguration
-//@ComponentScan(basePackages={"com.SheetsApp"})
-//@EnableJpaRepositories(basePackages="com.springApp.repository")
-//@EnableTransactionManagement
-//@EntityScan(basePackages="com.springApp.model")
+@ComponentScan(basePackages={"com.SheetsApp"})
+//@EnableJpaRepositories(basePackages="com.SheetsApp.repository")
+@EnableTransactionManagement
+@EntityScan(basePackages="com.SheetsApp.model")
 public class SheetsAppApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SheetsAppApplication.class, args);

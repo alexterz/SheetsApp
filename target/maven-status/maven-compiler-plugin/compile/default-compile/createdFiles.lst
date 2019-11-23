@@ -1,4 +1,7 @@
-com/SheetsApp/controller/SheetsController.class
+com/SheetsApp/model/Location.class
+com/SheetsApp/model/CoWorker.class
 com/SheetsApp/SheetsAppApplication.class
+com/SheetsApp/controller/SheetsController.class
 com/SheetsApp/sheets/GoogleAuthorizeUtil.class
 com/SheetsApp/sheets/SheetsServiceUtil.class
+com/SheetsApp/model/Person.class

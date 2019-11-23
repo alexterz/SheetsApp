@@ -1,6 +1,7 @@
 package com.SheetsApp.controller;
 
 
+import com.SheetsApp.model.CoWorker;
 import com.SheetsApp.sheets.SheetsServiceUtil; 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -27,6 +30,10 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
+import io.vavr.Tuple2;
+import io.vavr.Tuple;
 
 import javax.validation.Valid;
 import org.springframework.validation.BindingResult;
@@ -77,21 +84,70 @@ public class SheetsController {
 
 
     @GetMapping (produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getAvaliability() throws IOException, GeneralSecurityException {
+    public ResponseEntity<List<Tuple2<Integer,Integer>>> getAvaliability() throws IOException, GeneralSecurityException {
     	setup();
     	//= restTemplate.getForEntity(uri, String.class);
-		List<String> ranges = Arrays.asList("B2","C2");
+		List<String> ranges = Arrays.asList("Sheet1!4:5");
 		BatchGetValuesResponse readResult = sheetsService.spreadsheets().values()
 											.batchGet(SPREADSHEET_ID)
 											.setRanges(ranges)
 											.execute();
 
-		ValueRange b2 = readResult.getValueRanges().get(0);
-		String result = (String) b2.getValues().get(0).get(0);
-		return(new ResponseEntity<> (result,HttpStatus.OK));									
+		ValueRange all = readResult.getValueRanges().get(0);
+		List<Object> row =  all.getValues().get(0);
+		//String response = saveDataToSpringApp (row);
+		//return(new ResponseEntity<> (response,HttpStatus.OK));
+		return(new ResponseEntity<> (saveDataToSpringApp(row),HttpStatus.OK));									
     }
 
+    private List<Tuple2<Integer,Integer>> saveDataToSpringApp(List<Object> excelData){
+    	// GET request to find coWorker By Id 
+    	String id = (String)excelData.get(0);
+    	String theUrl ="http://localhost:8080/api/coWorker/"+id ;
+    	Integer hours;
 
+    	//get CoWorker object with the corresponding id
+    	ResponseEntity<CoWorker> getResponse = restTemplate.exchange(theUrl, HttpMethod.GET, null, CoWorker.class);
+    	if (getResponse.getStatusCodeValue()!=200){
+    		//return ("Cant find coWorker with id:"+id);
+    	}
+        CoWorker coWorker = getResponse.getBody();	
+
+        //extract avaliability from excel
+    	List<Tuple2<Integer,Integer>> avaliability = new ArrayList();
+    	for(Integer i=3; i<32; i++){
+    		hours = Integer.parseInt ((String) excelData.get(i));
+    		avaliability.add(Tuple.of(i-2,hours)); 
+    	}
+    	//Stream <Tuple2<Integer,Integer>> streamAvailability = availability.stream();
+ 
+    	coWorker.setAvailability(avaliability);
+
+    	//PUT request to update 
+    	String putUrl = "http://localhost:8080/api/coWorker/"+id ;
+
+	    // create headers
+	    HttpHeaders headers = new HttpHeaders();
+	    // set `content-type` header
+	    headers.setContentType(MediaType.APPLICATION_JSON);
+	    // set `accept` header
+	    //headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+	    // build the request
+	    HttpEntity<CoWorker> entity = new HttpEntity<>(coWorker, headers);
+
+	    // send PUT request to update CoWorker with `id` 
+	  //  ResponseEntity<Post> response = this.restTemplate.exchange(url, HttpMethod.PUT, entity, Post.class, 10);
+
+    	ResponseEntity<CoWorker> putResponse = restTemplate.exchange(putUrl, HttpMethod.PUT, entity, CoWorker.class, id);
+
+
+
+        
+        return avaliability;
+
+
+    }
 
     
 }
