@@ -14,7 +14,9 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import java.sql.Time;
 import java.util.*;
-import io.vavr.Tuple2;
+//import io.vavr.Tuple2;
+//import io.vavr.jackson;
+//import com.fasterxml.jackson.annotation.*;
 import java.util.List;
 
 
@@ -28,7 +30,7 @@ public class CoWorker extends Person{
     private String speciality;
 
     @ElementCollection
-    private List< Tuple2<Integer,Integer>> availability;
+    private List<Integer> availability;
 
 
     public CoWorker() {
