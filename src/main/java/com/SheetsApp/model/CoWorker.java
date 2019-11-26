@@ -26,8 +26,8 @@ import java.util.List;
 @Setter
 public class CoWorker extends Person{
 
-    @NotBlank(message = "Speciality is mandatory")
-    private String speciality;
+    @NotBlank(message = "Sector field is mandatory")
+    private String sector;
 
     @ElementCollection
     private List<Integer> availability;
@@ -36,9 +36,9 @@ public class CoWorker extends Person{
     public CoWorker() {
     }
 
-    public CoWorker(String lastName, String speciality) {
+    public CoWorker(String lastName, String sector) {
     	this.lastName = lastName;
-    	this.speciality = speciality;
+    	this.sector = sector;
     }
     
 
